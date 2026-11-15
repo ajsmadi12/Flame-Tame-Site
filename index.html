@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flame in Freefall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday science told as a short mission story: one flame, then a whole ship
+   IDEA a mission briefing in chapters; each chapter's choices carry into the next
+   PICTURE ch1 flame comparison, ch2 habitat + verdict (tested in orbit, predicted on Moon/Mars), ch3 ship map, ch4 before/after score
+   COLOUR white ground, deep space navy for the opening, orange = fire, blue = air / you, grey = no data, five-level risk scale
+   TYPE Barlow Semi Condensed display + Barlow text
+   LAYOUT progress rail on top; chapters as full-width bands, picture beside controls on laptop, stacked on phone */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0d1117);--ink:light-dark(#111820,#e8edf2);--panel:light-dark(#f3f5f8,#161c24);--alt:light-dark(#f7f8fa,#11161d);--line:light-dark(#d7dde4,#2b343e);--muted:light-dark(#5d6975,#95a1ad);--flame:light-dark(#d9411a,#ff6a3d);--flame2:light-dark(#f4a07f,#a8503a);--air:light-dark(#1f63d8,#5b9dff);--airsoft:light-dark(#e6efff,#15233d);--grey:light-dark(#8c96a0,#6c7782);--soft:light-dark(#e9eef4,#1d2530);--hull:light-dark(#eef2f6,#1a222c);--navy:#0b1424;--r1:#2e9d5b;--r2:#8cc152;--r3:#e3b52b;--r4:#ef8a32;--r5:#d9412b}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Barlow Semi Condensed",Barlow,system-ui,sans-serif;letter-spacing:-.015em;line-height:1.06;margin:0}
+h2{font-size:clamp(28px,3.2vw,40px);text-wrap:balance}
+h3{font-size:18px}
+a{color:var(--air)}
+button,input,select{font-family:Barlow,system-ui,sans-serif}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.comp:focus-visible{outline:3px solid var(--air);outline-offset:2px}
+.rail{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.railin{max-width:1240px;margin:0 auto;padding:8px max(16px,2.4vw);display:flex;gap:6px;overflow-x:auto}
+.railin a{flex:1 0 auto;display:flex;gap:8px;align-items:center;text-decoration:none;color:var(--muted);font:600 14px/1.15 Barlow,sans-serif;padding:6px 8px;border-radius:8px;min-height:40px;white-space:nowrap}
+.railin a i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);font-style:normal;font-size:13px;flex:none}
+.railin a.on{color:var(--ink);background:var(--airsoft)}
+.railin a.on i{background:var(--air);border-color:var(--air);color:#fff}
+.band{padding:clamp(40px,6vw,80px) max(16px,2.4vw);scroll-margin-top:56px}
+.band.alt{background:var(--alt);border-block:1px solid var(--line)}
+.in{max-width:1240px;margin:0 auto}
+.kick{display:inline-flex;align-items:center;gap:8px;font:700 15px Barlow,sans-serif;color:var(--air);margin-bottom:10px}
+.kick b{width:28px;height:28px;border-radius:50%;background:var(--air);color:#fff;display:grid;place-items:center}
+.lead{font-size:18px;max-width:64ch;margin:12px 0 0;color:var(--ink)}
+.lead.m{color:var(--muted);font-size:17px}
+.carry{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px;font-size:14px;color:var(--muted)}
+.carry span{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--ink);font-weight:600}
+.two{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;margin-top:22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.band.alt .card{background:var(--bg)}
+/* chapter 1 */
+.hero{background:var(--navy);color:#eef3f8;padding:clamp(48px,7vw,96px) max(16px,2.4vw)}
+.hero h1{font-size:clamp(40px,6vw,72px);line-height:1}
+.hero p{font-size:19px;max-width:58ch;color:#c4d0de;margin:16px 0 0}
+.hero .two{align-items:center}
+.flames{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fl{background:#121f35;border:1px solid #23344f;border-radius:14px;padding:12px;text-align:center}
+.fl svg{width:100%;height:auto;max-height:220px}
+.fl b{display:block;font:700 18px "Barlow Semi Condensed",sans-serif;color:#fff}
+.fl span{font-size:14px;color:#9fb0c4}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:28px}
+.facts div{border-top:2px solid #2c4a75;padding-top:10px;font-size:15px;color:#c4d0de}
+.facts b{display:block;font:800 30px "Barlow Semi Condensed",sans-serif;color:#fff}
+.go{display:inline-flex;margin-top:24px;background:#fff;color:var(--navy);font:700 16px Barlow,sans-serif;text-decoration:none;padding:12px 18px;border-radius:10px}
+/* choices */
+.qs{display:grid;gap:14px}
+.q h3{font:600 15px Barlow,sans-serif;color:var(--muted);margin-bottom:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{flex:1 1 0;min-width:96px;text-align:left;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 10px;cursor:pointer;min-height:44px;font:600 16px/1.2 Barlow,sans-serif}
+.opt small{display:block;font-weight:500;font-size:13px;line-height:1.3;color:var(--muted);margin-top:2px}
+.opt[aria-pressed=true]{border:2px solid var(--air);background:var(--airsoft);padding:7px 9px}
+.opt:hover{border-color:var(--air)}
+.lab{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:15px}
+.lab output{font-variant-numeric:tabular-nums;white-space:nowrap}
+input[type=range]{width:100%;height:40px;accent-color:var(--air);margin:0}
+.ticks{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:-4px}
+.note{font-size:14px;color:var(--muted);margin:6px 0 0}
+.hab{padding:0;overflow:hidden}
+.hab svg{display:block;width:100%;height:auto}
+.comp{cursor:pointer}
+.comp:hover .hl,.comp.on .hl{stroke:var(--air);stroke-width:5}
+.flow path{stroke:var(--air);stroke-width:2.5;fill:none;stroke-dasharray:10 14;animation:fl var(--dur,2s) linear infinite}
+@keyframes fl{to{stroke-dashoffset:-48}}
+@media (prefers-reduced-motion:reduce){.flow path{animation:none}}
+.verdict{margin-top:14px}
+.vhead{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.vicon{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font:800 28px "Barlow Semi Condensed",sans-serif;color:#fff}
+.vicon.burn{background:var(--flame)}.vicon.out{background:var(--air)}.vicon.unk{background:var(--grey)}.vicon.mix{background:linear-gradient(135deg,var(--flame) 50%,var(--air) 50%)}.vicon.pred{background:var(--flame);outline:3px dashed var(--flame);outline-offset:3px;opacity:.85}
+.vtitle{font:800 clamp(24px,2.6vw,30px)/1.05 "Barlow Semi Condensed",sans-serif}
+.badge{display:inline-block;font:700 13px Barlow,sans-serif;background:var(--soft);border:1px dashed var(--grey);border-radius:999px;padding:2px 10px;margin-bottom:8px}
+.fig{position:relative;height:clamp(280px,32vw,380px)}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig svg text{font:13px Barlow,sans-serif;fill:var(--muted);paint-order:stroke;stroke:var(--bg);stroke-width:4px}
+.fig svg text.k{fill:var(--ink);font-weight:600}
+.fig svg text.you{fill:var(--air);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px;margin:6px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.legend svg{width:16px;height:16px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+.detail{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:15px}
+.meters{display:grid;gap:10px;margin:8px 0 12px}
+.mrow{display:grid;grid-template-columns:minmax(0,10em) minmax(0,1fr) max-content;gap:10px;align-items:center;font-size:15px}
+.mbar{height:12px;border-radius:6px;background:var(--soft);overflow:hidden}
+.mbar i{display:block;height:100%;background:repeating-linear-gradient(45deg,var(--flame) 0 6px,var(--flame2) 6px 10px)}
+.mrow b{white-space:nowrap}
+.genv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sl2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.shipnow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px}
+.shipnow b{font:800 30px "Barlow Semi Condensed",sans-serif}
+.delta{font-weight:700;color:var(--r1);white-space:nowrap}
+.delta.up{color:var(--r5)}
+.mod.flash{animation:fla 1.2s ease-out}
+@keyframes fla{0%{box-shadow:0 0 0 6px var(--r1)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.mod.flash{animation:none}}
+/* ship */
+.mapbox{position:relative;overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.map{position:relative}
+.mod{position:absolute;width:184px;height:118px;border:1px solid var(--line);border-top:5px solid var(--tc);border-radius:10px;background:var(--bg);padding:6px 8px;cursor:pointer;text-align:left;color:var(--ink);font:14px/1.25 Barlow,sans-serif;display:flex;flex-direction:column;gap:4px}
+.mod:hover{border-color:var(--air);border-top-color:var(--tc)}
+.mod.risk{background:color-mix(in srgb,var(--rc) 16%,var(--bg))}
+.mod .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb{display:inline-block;font:700 11px Barlow,sans-serif;color:#fff;background:var(--tc);border-radius:4px;padding:1px 5px;margin-right:4px;vertical-align:1px}
+.bdg{display:inline-flex;font-size:10.5px;font-weight:600;border-radius:999px;padding:0 6px;border:1.5px solid var(--muted);color:var(--muted);white-space:nowrap}
+.bdg.yes{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.bdg.no{border-style:dashed}
+.bdg.need{border-color:var(--r5);color:var(--r5)}
+.tag{font-size:11px;font-weight:600;border-radius:4px;padding:0 5px;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.mod .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:auto}
+.lvl{font-size:12px;font-weight:700;border-radius:4px;padding:0 6px;color:#fff;white-space:nowrap}
+.port{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--muted);pointer-events:none}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.btn{font:600 15px Barlow,sans-serif;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;min-height:40px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--ink)}
+.btn.pri{background:var(--air);border-color:var(--air);color:#fff}
+.btn.sm{min-height:34px;padding:4px 10px;font-size:14px}
+.btn[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:6px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.list li{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:15px}
+.list li>span{flex:1}
+.list small{display:block;color:var(--muted);font-size:13px}
+.ev{font-size:12px;color:var(--air);font-weight:600}
+.flv{font-size:12px;font-weight:700;border-radius:4px;padding:0 6px;white-space:nowrap}
+.flv.High{background:#fde3dd;color:#a3301e}.flv.Moderate{background:#fdf0cf;color:#8a6200}.flv.Low{background:#dff2e6;color:#1f6e40}
+/* ch5 */
+.ba{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+.score{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+.score b{display:block;font:800 clamp(48px,6vw,72px)/1 "Barlow Semi Condensed",sans-serif}
+.score span{font:700 18px "Barlow Semi Condensed",sans-serif}
+.arrow{font:800 32px "Barlow Semi Condensed",sans-serif;color:var(--muted)}
+.unk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:22px}
+.unk .card h3{margin-bottom:6px}
+.unk .card p{margin:0;font-size:15px}
+.aiout{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:16px}
+.aiout:empty{display:none}
+.aiout p{margin:0 0 8px}
+.src{font-size:14px;columns:2;column-gap:28px;padding-left:18px;margin:10px 0 0}
+.src li{break-inside:avoid;margin-bottom:4px}
+.ov{position:fixed;inset:0;background:rgba(10,16,26,.55);display:grid;place-items:center;z-index:20;padding:12px}
+.dlg{background:var(--bg);color:var(--ink);border-radius:14px;width:min(680px,100%);max-height:calc(100% - 24px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.dh{position:sticky;top:0;background:var(--bg);padding:14px 16px 10px;border-bottom:1px solid var(--line);z-index:1}
+.db{padding:14px 16px;display:grid;gap:14px}
+.df{position:sticky;bottom:0;background:var(--bg);padding:10px 16px;border-top:1px solid var(--line);display:flex;justify-content:flex-end}
+.addf{display:grid;grid-template-columns:minmax(0,1fr) 80px auto;gap:6px}
+.addf select,.addf input{font:16px Barlow,sans-serif;min-height:40px;border:1px solid var(--line);border-radius:8px;padding:4px 8px;background:var(--bg);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:30;max-width:90vw}
+@media(max-width:900px){.two{grid-template-columns:minmax(0,1fr)}.unk{grid-template-columns:minmax(0,1fr)}.src{columns:1}}
+@media(max-width:600px){.facts{grid-template-columns:minmax(0,1fr)}.genv{grid-template-columns:minmax(0,1fr)}.ba{grid-template-columns:minmax(0,1fr)}.arrow{transform:rotate(90deg);justify-self:center}.mrow{grid-template-columns:minmax(0,1fr) max-content}.mrow .mbar{grid-column:1/-1;grid-row:2}}
+</style>
+</head>
+<body>
+<nav class="rail" aria-label="Chapters"><div class="railin" id="rail"></div></nav>
+
+<section class="hero" id="c1">
+  <div class="in two" style="margin-top:0">
+    <div>
+      <div class="kick" style="color:#8fb6ff"><b>1</b>The problem</div>
+      <h1>Fire doesn't behave the same way in space</h1>
+      <p>On Earth, hot air rises and pulls fresh oxygen into a flame. In orbit nothing rises, so a fire lives or dies by the cabin fans. On the Moon and Mars, gravity comes back, but only partly. This story follows one flame from NASA's flight tests to a whole spacecraft.</p>
+      <a class="go" href="#c2">Start with one flame ↓</a>
+    </div>
+    <div class="flames" aria-hidden="true">
+      <div class="fl"><svg viewBox="0 0 120 160"><path d="M60 140C30 128 34 82 60 30C72 70 92 92 86 120C82 136 72 140 60 140Z" fill="#ff8a2a"/><path d="M60 136C46 128 48 104 60 76C66 96 76 108 72 122C70 132 66 136 60 136Z" fill="#ffd34d"/><rect x="57" y="140" width="6" height="16" fill="#e8edf2"/></svg><b>On Earth</b><span>Tall and yellow. Rising hot air feeds it.</span></div>
+      <div class="fl"><svg viewBox="0 0 120 160"><circle cx="60" cy="96" r="34" fill="#3d7bff" opacity=".35"/><circle cx="60" cy="96" r="24" fill="#5b9dff" opacity=".55"/><circle cx="60" cy="96" r="12" fill="#cfe0ff" opacity=".7"/><rect x="57" y="96" width="6" height="56" fill="#e8edf2"/></svg><b>In orbit</b><span>Round, dim and blue. Only moving air feeds it.</span></div>
+    </div>
+  </div>
+  <div class="in facts">
+    <div><b id="ntests">38</b>NASA flight tests in this story, from the Saffire and BASS experiments</div>
+    <div><b>1 ship</b>you'll stock and fix using what the tests showed</div>
+  </div>
+</section>
+
+<section class="band" id="c2"><div class="in">
+  <div class="kick"><b>2</b>One flame, three places</div>
+  <h2>Air, fans and gravity decide whether a flame lives</h2>
+  <p class="lead m">Pick where the habitat is, what's burning and the cabin air, then change the fans. In orbit, the answer comes from real NASA flight tests. On the Moon and Mars, where no fire test has flown yet, you get a labeled prediction from published research.</p>
+  <div class="two">
+    <div class="card hab"><div id="hab2"></div>
+      <div style="padding:12px 16px 14px;border-top:1px solid var(--line)">
+        <label class="lab" for="fl"><span>Fans</span><output id="flv"></output></label>
+        <input type="range" id="fl" min="0" max="30" step="0.5">
+        <div class="ticks"><span>Still air</span><span>Gentle breeze</span><span>Fan on high</span></div>
+        <p class="note" id="fannote"></p>
+      </div></div>
+    <div>
+      <div class="qs">
+        <div class="q"><h3>Where?</h3><div class="genv" id="genv"></div></div>
+        <div class="q"><h3>What's burning?</h3><div class="opts" id="what"></div><p class="note" style="margin-top:6px">Every option is a material NASA has burned in orbit. Tests run from 0 to 25 cm/s airflow.</p></div>
+        <div class="q"><h3>What air?</h3><div class="opts" id="air"></div>
+          <div class="sl2"><div><label class="lab" for="o2"><span>Oxygen</span><output id="o2v"></output></label><input type="range" id="o2" min="14" max="34" step="0.1"></div>
+          <div><label class="lab" for="pr"><span>Pressure</span><output id="prv"></output></label><input type="range" id="pr" min="7.5" max="14.9" step="0.05"></div></div>
+          <p class="note" style="margin-top:0">Flight tests cover 16.4–31% oxygen and 7.85–14.7 psia. Earth is 21% and 14.7 psia.</p></div>
+      </div>
+      <div class="card verdict" id="verdict" aria-live="polite"></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="band" id="c3"><div class="in">
+  <div class="kick"><b>3</b>From one flame to a whole ship</div>
+  <h2>Every module stores something that can burn</h2>
+  <p class="lead m">The materials you just tested are on board: acrylic in the lab, cotton in crew quarters, cargo fabric in stowage. Click a module to see what's inside, add or swap items, and watch its risk change.</p>
+  <div class="carry">Mission and air from chapter 2: <span id="carry4"></span></div>
+  <div class="row" style="margin:16px 0 10px;justify-content:space-between"><div class="row"><span class="note" style="margin:0">Ship:</span><span id="starters" class="row"></span></div><div class="legend" id="lvleg" style="margin:0"></div></div>
+  <div class="shipnow" id="shipnow"></div>
+  <div class="mapbox" id="mapbox"><div id="mapsz" style="position:relative;overflow:hidden"><div class="map" id="map"></div></div></div>
+  <p class="note">Badges: solid = present, dashed = missing, red = needed. Room scores rise smoothly with fuel, ignition and oxygen, so every fix shows; the ship score blends the three riskiest rooms with the average of all rooms. Weights are still the team's placeholders until real test data replaces them.</p>
+</div></section>
+
+<section class="band alt" id="c4"><div class="in">
+  <div class="kick"><b>4</b>Fix it</div>
+  <h2>A few changes cut the ship's fire risk</h2>
+  <p class="lead m">Each fix comes from the risk rules: add detection where fuel is stored, swap to lower-flammability versions, and move flammables away from ignition and oxygen.</p>
+  <div class="two">
+    <div class="card"><div class="ba"><div class="score" id="before"></div><div class="arrow" aria-hidden="true">→</div><div class="score" id="after"></div></div>
+      <p class="note" id="scorenote"></p>
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="fixall">Apply the top 3 fixes</button><button class="btn" id="undo">Start over</button></div></div>
+    <div class="card"><h3 style="margin-bottom:8px">Biggest fixes right now</h3><ul class="list" id="fixes"></ul></div>
+  </div>
+</div></section>
+
+<section class="band" id="c5"><div class="in">
+  <div class="kick"><b>5</b>What we still don't know</div>
+  <h2>The next tests matter more than the next model</h2>
+  <p class="lead m">The ship score rests on placeholder weights, and the Moon and Mars answers rest on predictions. These gaps are where new data would change the story most.</p>
+  <div class="unk">
+    <div class="card"><h3>No partial-gravity fire tests</h3><p>All 38 tests here were in microgravity. NASA's planned FM2 experiment is designed to burn materials on the Moon for the first time.</p></div>
+    <div class="card"><h3>Nothing above 31% oxygen</h3><p>The proposed Moon-base air is 34% oxygen. The closest flight tests stopped at about 31%, and they kept burning.</p></div>
+    <div class="card"><h3>Placeholder ship weights</h3><p>Flammability points and factor weights need replacing with real test results, such as NASA-STD-6001 data.</p></div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="row" style="justify-content:space-between"><h3>Your mission brief</h3><button class="btn pri" id="brief">Write my mission brief</button></div>
+    <p class="note" id="briefnote">Sums up your choices: the material, air, gravity and the ship's score before and after fixes.</p><div class="aiout" id="aiout"></div></div>
+  <details style="margin-top:16px"><summary>Sources</summary><ol class="src">
+    <li><a href="https://ntrs.nasa.gov/api/citations/20180005168/downloads/20180005168.pdf">Saffire I–III results (NTRS 20180005168)</a></li>
+    <li><a href="https://ntrs.nasa.gov/api/citations/20240007488/downloads/Saffire%20ICES%202024%20Saffire%20presentation072124small.pdf">Saffire VI test matrix (NTRS 20240007488)</a></li>
+    <li><a href="https://ntrs.nasa.gov/api/citations/20150008962/downloads/20150008962.pdf">BASS/BASS-II cotton-fiberglass tests (NTRS 20150008962)</a></li>
+    <li><a href="https://ntrs.nasa.gov/api/citations/20260000646/downloads/Ferkul-Lunar%20and%20Planetary%20Science%20Conference%202026.pdf">Ferkul et al., Material flammability at Lunar and Martian gravity (LPSC 2026)</a></li>
+    <li><a href="https://www.nasa.gov/flammability-of-materials-on-the-moon-fm2/">NASA: Flammability of Materials on the Moon (FM2)</a></li>
+    <li><a href="https://ntrs.nasa.gov/citations/20010074003">Partial-gravity flame spread on KC-135 flights (NTRS 20010074003)</a></li>
+    <li><a href="https://ntrs.nasa.gov/api/citations/20240004074/downloads/SHOP%20-%20Variable%20Pressure%20Suit_v2.pdf">Exploration atmosphere, 8.2 psia / 34% O₂ (NTRS 20240004074)</a></li>
+    <li>Stowage Fire-Risk Planner handoff (team document, Nov 14, 2026): risk model and item library</li>
+  </ol></details>
+</div></section>
+<div id="layer"></div>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2000)}
+// ================= flight-test data (from the Fire Lab) =================
+const SRC={S45:["Saffire IV & V results (ICES 2021)","https://ntrs.nasa.gov/api/citations/20210011521/downloads/ICES%202021-266%200503-2021%20final.pdf"],S13:["Saffire I–III results","https://ntrs.nasa.gov/api/citations/20180005168/downloads/20180005168.pdf"],S46:["Saffire VI test matrix","https://ntrs.nasa.gov/api/citations/20240007488/downloads/Saffire%20ICES%202024%20Saffire%20presentation072124small.pdf"],BASS:["BASS/BASS-II tests","https://ntrs.nasa.gov/api/citations/20150008962/downloads/20150008962.pdf"]};
+const T=[
+ ["I-1","Saffire-I","SIBAL",21.6,20,null,"S","Spread ~84 cm in 420 s.","S13"],["II-5","Saffire-II","SIBAL",22.1,20,null,"S","Full 29 cm in 145 s.","S13"],["II-6","Saffire-II","SIBAL",22.1,25,null,"S","Full 29 cm in 115 s.","S13"],
+ ["II-7a","Saffire-II","PMMA",22.1,20,null,"S","Acrylic section burned ~5 cm in 140 s.","S13"],["II-8","Saffire-II","PMMA",22.05,20,null,"L","~10 cm of 29 cm in 600 s.","S13"],["II-9","Saffire-II","PMMA",21.95,20,null,"L","~10 cm of 29 cm in 900 s.","S13"],
+ ["III-1","Saffire-III","SIBAL",21.1,25,null,"S","Spread ~84 cm in 300 s.","S13"],["IV-1","Saffire-IV","SIBAL",22.0,20,14.5,"S","Large-scale fire in air.","S46"],
+ ["V-2","Saffire-V","COTTON",26.2,20,10.25,"S","Burned at 70.7 kPa, 26.2% O₂.","S46"],["VI-2","Saffire-VI","SIBAL",31.0,20,7.85,"S","Burned at 54.1 kPa, 31% O₂.","S46"],
+ ["VI-3","Saffire-VI","PMMA",30.3,20,7.92,"S","Ignited; flow cut to 5 cm/s later. Outcome after the cut not stated.","S46"],["VI-4","Saffire-VI","PMMA",28.8,20,8.01,"S","Burned at 55.2 kPa, 28.8% O₂.","S46"],
+ ["T4","BASS-II","SIBAL",18.7,2.2,14.7,"E","Flow cut from 10 to 2.2 cm/s: went out.","BASS"],["T4b","BASS-II","SIBAL",18.7,10,14.7,"S","Burning at the 10 cm/s start flow.","BASS"],["T13","BASS-II","SIBAL",17.5,2.2,14.7,"E","Flow cut from 4 to 2.2 cm/s: went out.","BASS"],
+ ["T18","BASS-II","SIBAL",17.4,2.6,14.7,"E","Flow cut from 5 to 2.6 cm/s: went out.","BASS"],["T14","BASS-II","SIBAL",16.9,2.8,14.7,"E","Flow cut from 4 to 2.8 cm/s: went out.","BASS"],["T20","BASS-II","SIBAL",17.2,3,14.7,"E","Flow cut from 11 to 3 cm/s: went out.","BASS"],
+ ["T20b","BASS-II","SIBAL",17.2,11,14.7,"S","Burning at the 11 cm/s start flow.","BASS"],["T22","BASS-II","SIBAL",17.1,5,14.7,"E","Flow cut from 10.5 to 5 cm/s: went out.","BASS"],["T9","BASS-II","SIBAL",16.4,10,14.7,"N","No ignition.","BASS"],
+ ["T10","BASS-II","SIBAL",16.4,5,14.7,"N","No ignition.","BASS"],["T12","BASS-II","SIBAL",16.8,5,14.7,"N","No ignition.","BASS"],["T23","BASS-II","SIBAL",17.2,10,14.7,"N","Did not ignite.","BASS"],
+ ["T28","BASS-II","SIBAL",20.7,5,14.7,"N","Did not ignite (two attempts).","BASS"],["T25","BASS-II","SIBAL",20.8,5,14.7,"S","Ignited at 5 cm/s.","BASS"],["T27","BASS-II","SIBAL",20.7,5,14.7,"S","Ignited at 5 cm/s.","BASS"],
+ ["B-T8","BASS","SIBAL",21,5,14.7,"S","Spread rate plotted in the paper; outcome inferred.","BASS"],["B-T7","BASS","SIBAL",21,10,14.7,"S","Spread rate plotted in the paper; outcome inferred.","BASS"],["B-T10","BASS","SIBAL",21,11,14.7,"S","Spread rate plotted in the paper; outcome inferred.","BASS"],["B-T11","BASS","SIBAL",21,19,14.7,"S","Spread rate plotted in the paper; outcome inferred.","BASS"],
+ ["II-1","Saffire-II","SILICONE",22.1,20,null,"N","0.27 mm sheet: insignificant burn, no spread.","S13"],["II-2","Saffire-II","SILICONE",22.1,20,null,"N","0.61 mm sheet: insignificant burn, no spread.","S13"],["II-3","Saffire-II","SILICONE",22.1,20,null,"N","1.03 mm sheet: insignificant burn, no spread.","S13"],
+ ["II-7b","Saffire-II","NOMEX",22.1,20,null,"N","Did not spread (~0 cm) after an acrylic igniter burned.","S13"],
+ ["IV-2","Saffire-IV","PMMA",22.0,20,14.5,"L","1 cm two-sided slab: flame stayed at the leading edge, growing to 9.5 cm in 400 s.","S45"],["IV-2b","Saffire-IV","PMMA",22.0,5,14.5,"S","Same slab kept burning when flow was cut to 5 cm/s.","S45"],
+ ["V-2b","Saffire-V","COTTON",26.2,0,10.25,"S","Same cotton kept burning with the fan off for about 70 s, then regrew when flow returned.","S45"],
+ ["V-3","Saffire-V","PMMA",25.4,20,10.34,"S","0.5 cm one-sided slab: grew to 11 cm in 450 s.","S45"],["V-3b","Saffire-V","PMMA",25.4,5,10.34,"S","Same slab kept burning for 300 s at 5 cm/s.","S45"],["V-3c","Saffire-V","PMMA",25.4,0,10.34,"E","Same slab went out immediately when flow stopped.","S45"]
+].map(r=>({id:r[0],exp:r[1],m:r[2],o:r[3],f:r[4],p:r[5],out:r[6],note:r[7],src:r[8]}));
+const MATS={SIBAL:{c:"Cargo fabric",s:"Cargo fabric",d:"stowage module"},PMMA:{c:"Acrylic panels",s:"Acrylic",d:"lab windows and panels"},COTTON:{c:"Cotton clothing",s:"Cotton",d:"crew quarters"},NOMEX:{c:"Nomex bags",s:"Nomex",d:"the low-risk swap for clothing"},SILICONE:{c:"Silicone seals",s:"Silicone",d:"hatch and window seals"}};
+const OUT={S:"Kept burning",L:"Burned a little, then stopped",E:"Went out",N:"Didn't catch"};
+const ATM=[{k:"earth",n:"Normal air",d:"14.7 psia, 21% O₂, like the ISS",p:14.7,o:21},{k:"staged",n:"Spacewalk-ready",d:"10.2 psia, 26.5% O₂",p:10.2,o:26.5},{k:"expl",n:"Moon-base air",d:"8.2 psia, 34% O₂",p:8.2,o:34}];
+const GE=[{k:"ISS",g:0,gl:"Microgravity",d:"In orbit or in transit",mis:"cruise"},{k:"Moon",g:0.165,gl:"0.165 g",d:"About 1/6 Earth gravity",mis:"moon"},{k:"Mars",g:0.38,gl:"0.38 g",d:"About 3/8 Earth gravity",mis:"mars"}];
+const S={m:"SIBAL",o:21,p:14.7,f:20,env:"ISS"};
+const A=()=>{const a=ATM.find(x=>x.o===S.o&&x.p===S.p);return{o:S.o,p:S.p,n:a?a.n:"Custom air",d:`${S.p.toFixed(1)} psia, ${S.o.toFixed(1)}% O₂`,k:a?a.k:null}};
+const pOf=t=>t.p==null?14.7:t.p;
+const matches=()=>T.filter(t=>t.m===S.m&&Math.abs(t.o-A().o)<=2.5&&Math.abs(t.f-S.f)<=5&&Math.abs(pOf(t)-A().p)<=2);
+const nearest=()=>T.filter(t=>t.m===S.m).sort((a,b)=>Math.hypot((a.o-A().o)/2.5,(a.f-S.f)/5,(pOf(a)-A().p)/2)-Math.hypot((b.o-A().o)/2.5,(b.f-S.f)/5,(pOf(b)-A().p)/2))[0];
+const FLS='<svg viewBox="-16 -42 32 44" width="60%" height="60%" aria-hidden="true"><path d="M0 0C-14 -6 -12 -26 0 -40C2 -28 14 -22 12 -10C10 -2 6 0 0 0Z" fill="#fff"/></svg>';
+function verdict(){
+  const m=matches();
+  if(!m.length)return{c:"unk",i:"?",t:"Unknown: no test this close",s:"No NASA flight test sits close enough to these conditions to say.",m};
+  const b=m.filter(t=>t.out==="S"||t.out==="L").length,o=m.length-b;
+  const tally=["S","L","E","N"].map(k=>{const n=m.filter(t=>t.out===k).length;return n?`${n} ${OUT[k].toLowerCase()}`:""}).filter(Boolean).join(", ");
+  const s=`${m.length} NASA test${m.length>1?"s":""} under these conditions: ${tally}.`;
+  if(!o)return{c:"burn",i:FLS,t:"Likely keeps burning",s,m};
+  if(!b)return{c:"out",i:"✕",t:m.every(t=>t.out==="N")?"Likely doesn't catch":"Likely goes out",s,m};
+  return{c:"mix",i:"±",t:"On the edge: mixed results",s,m};
+}
+const LV0=["Unknown","About the same","Slightly higher","Higher","Much higher"];
+function predict(k){
+  const moon=k==="Moon",slow=S.f<7,lowO=A().o<17.5,why=[];let start,keep,t="Prediction: likely keeps burning";
+  if(S.m==="SILICONE"||S.m==="NOMEX"){why.push(`${MATS[S.m].s} barely burned and didn't spread in orbit at 22% oxygen. Partial gravity makes many materials more flammable, but nothing has been measured for this one.`);why.push(moon?"NASA research suggests lunar gravity is close to the most flammable condition.":"Mars gravity also brings back rising hot air, which can feed a flame.");if(A().o>=30)why.push("This air's extra oxygen adds to the risk.");return{start:2,keep:0,t:"Prediction: uncertain",why}}
+  if(lowO){start=moon?3:2;keep=moon?3:2;t="Prediction: may burn"}else{start=slow?3:2;keep=moon?(slow?4:3):(slow?3:2)}
+  why.push(slow?"In orbit, slow fans starve a flame. With gravity, hot gas rises and pulls in fresh oxygen by itself, so a fire that would go out in orbit may keep going.":"In orbit the fans already feed the flame. Gravity adds rising hot air on top of that.");
+  why.push(moon?"NASA research suggests lunar gravity is close to the most flammable condition: flame spread peaks and the oxygen needed to burn bottoms out near Moon gravity.":"At Mars gravity the rising air is faster, which also cools the flame, so the boost is likely smaller than on the Moon. Short tests at Lunar and Martian gravity still burned at lower oxygen than on Earth.");
+  if(A().o>=30)why.push("This air's extra oxygen adds to the risk.");
+  return{start,keep,t,why};
+}
+// ================= habitat drawing =================
+function stars(){let s=7,o="";for(let i=0;i<50;i++){s=s*16807%2147483647;const x=s%640;s=s*16807%2147483647;const y=s%300;o+=`<circle cx="${x}" cy="${y}" r="${(i%3)*.4+.5}"/>`}return o}
+function scene(k){
+  if(k==="ISS")return `<rect width="640" height="400" fill="#05070d"/><g fill="#fff" opacity=".8">${stars()}</g><ellipse cx="320" cy="560" rx="560" ry="230" fill="#1d4f91"/><ellipse cx="320" cy="560" rx="560" ry="230" fill="none" stroke="#7fb8ff" stroke-width="6" opacity=".6"/>`;
+  if(k==="Moon")return `<rect width="640" height="400" fill="#06070a"/><g fill="#fff" opacity=".7">${stars()}</g><circle cx="560" cy="44" r="20" fill="#2f6fd0"/><path d="M0 330C120 310 220 322 330 306S520 300 640 318V400H0Z" fill="#7d7b78"/><path d="M0 350C160 338 300 352 640 340V400H0Z" fill="#9a9894"/>`;
+  return `<rect width="640" height="400" fill="#d9ad80"/><path d="M0 300L90 250L170 290L260 236L360 292L470 248L640 300V400H0Z" fill="#a8532c" opacity=".7"/><path d="M0 334C140 316 300 336 640 320V400H0Z" fill="#b8613a"/><path d="M0 362C200 352 380 366 640 356V400H0Z" fill="#c9724a"/>`;
+}
+function habSVG(k,showFlame,label,click){
+  const micro=k==="ISS",dur=S.f<=0?0:(48/(S.f*6)).toFixed(2);
+  const L=(x,y,t)=>`<text x="${x}" y="${y}" font-size="15" font-family="Barlow, sans-serif" font-weight="600" fill="#1b232c" paint-order="stroke" stroke="#f5f7f9" stroke-width="4">${t}</text>`;
+  const comp=(key,inner,lab,lx,ly)=>`<g class="comp${S.m===key?" on":""}" data-m="${key}" ${click?'tabindex="0" role="button"':""} aria-label="${MATS[key].c}">${inner}${L(lx,ly,lab)}</g>`;
+  let s=scene(k)+`<defs><marker id="ga${k}" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#4b5560"/></marker><marker id="fa${k}" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#1f63d8"/></marker></defs>`+
+  `<path fill-rule="evenodd" fill="#dfe4e9" stroke="#8a96a3" stroke-width="2" d="M70 60H570Q600 60 600 90V320Q600 350 570 350H70Q40 350 40 320V90Q40 60 70 60ZM130 140A52 52 0 1 0 130.1 140Z"/><rect x="58" y="78" width="524" height="254" rx="14" fill="none" stroke="#c3cad2" stroke-width="2"/>`+
+  [150,250,350,450].map(x=>`<path d="M${x} 62V348" stroke="#cdd3da" stroke-width="2"/>`).join("")+`<path d="M60 330H580" stroke="#9aa5b1" stroke-width="3"/>`+
+  (micro?`<g stroke="#8a96a3" stroke-width="5" stroke-linecap="round"><path d="M230 96H290"/><path d="M380 96H440"/></g><text x="335" y="152" text-anchor="middle" font-size="14" font-family="Barlow, sans-serif" fill="#4b5560">No up or down</text>`:`<path d="M205 104V160" stroke="#4b5560" stroke-width="3" marker-end="url(#ga${k})"/><text x="214" y="138" font-size="14" font-family="Barlow, sans-serif" font-weight="600" fill="#4b5560">${GE.find(e=>e.k===k).gl}</text>`)+
+  comp("PMMA",`<circle class="hl" cx="130" cy="192" r="56" fill="#cfe3f5" fill-opacity=".18" stroke="#6d7b88" stroke-width="3"/><circle cx="130" cy="192" r="61" fill="none" stroke="#9aa5b1" stroke-width="5"/>`,"Acrylic window",76,275)+
+  comp("SILICONE",`<rect class="hl" x="300" y="80" width="80" height="22" rx="11" fill="#c9cfd6" stroke="#6d7b88" stroke-width="2"/><rect x="312" y="85" width="56" height="12" rx="6" fill="#8d97a2"/>`,"Hatch seal",305,122)+
+  comp("SIBAL",`<rect x="222" y="200" width="96" height="120" rx="6" fill="#47515c"/><rect class="hl" x="232" y="212" width="76" height="80" rx="3" fill="#2e353d" stroke="#6d7b88" stroke-width="2"/><rect x="252" y="220" width="36" height="62" fill="#e9dcc0"/><path d="M252 230H288M252 242H288M252 254H288M252 266H288" stroke="#cbbb98" stroke-width="1.5"/>`,"Cargo fabric",218,192)+
+  comp("NOMEX",`<path class="hl" d="M340 214H404Q412 214 412 222V312Q412 320 404 320H340Q332 320 332 312V222Q332 214 340 214Z" fill="#d7c48a" stroke="#6d7b88" stroke-width="2"/><rect x="350" y="206" width="44" height="12" rx="6" fill="none" stroke="#8a7a45" stroke-width="3"/><path d="M340 250H404" stroke="#b8a66c" stroke-width="2"/>`,"Nomex bag",334,342)+
+  comp("COTTON",`<rect class="hl" x="440" y="150" width="120" height="170" rx="16" fill="#3f6fa8" stroke="#6d7b88" stroke-width="2"/>${[0,1,2].map(i=>`<rect x="452" y="${164+i*52}" width="96" height="42" rx="10" fill="#5584bd"/>`).join("")}`,"Cotton clothing",446,142);
+  s+=`<g class="flow" style="--dur:${dur}s">${S.f<=0?"":[100,178,256].map((y,i)=>`<path d="M200 ${y+i*10}C300 ${y-14} 420 ${y+20} 590 ${y+4}" marker-end="url(#fa${k})" style="animation-delay:-${i*.4}s"/>`).join("")}</g>`;
+  if(showFlame){const pos={PMMA:[130,228],SIBAL:[270,236],COTTON:[500,170],NOMEX:[372,262],SILICONE:[340,96]}[S.m];s+=`<g transform="translate(${pos[0]} ${pos[1]}) scale(.85)"><path d="M0 0C-14 -6 -12 -26 0 -40C2 -28 14 -22 12 -10C10 -2 6 0 0 0Z" fill="#ff8a2a"/><path d="M0 -2C-7 -6 -6 -16 0 -24C2 -16 7 -12 6 -7C5 -3 3 -2 0 -2Z" fill="#ffd34d"/></g><text x="${pos[0]}" y="${pos[1]+18}" text-anchor="middle" font-size="12" font-family="Barlow, sans-serif" fill="#1b232c" paint-order="stroke" stroke="#f5f7f9" stroke-width="4">${label}</text>`}
+  return `<svg viewBox="0 0 640 400" role="img" aria-label="${k} habitat cutaway">${s}</svg>`;
+}
+// ================= chapter 2 =================
+function sym(out,x,y,r){
+  if(out==="S"||out==="L")return `<circle cx="${x}" cy="${y}" r="${r}" fill="var(${out==="S"?"--flame":"--flame2"})" stroke="var(--bg)" stroke-width="1.5"/>`;
+  if(out==="E")return `<g><circle cx="${x}" cy="${y}" r="${r}" fill="var(--bg)" stroke="var(--air)" stroke-width="2"/><path d="M${x-r*.55} ${y-r*.55}L${x+r*.55} ${y+r*.55}M${x+r*.55} ${y-r*.55}L${x-r*.55} ${y+r*.55}" stroke="var(--air)" stroke-width="2"/></g>`;
+  return `<path d="M${x} ${y-r-1}L${x+r+1} ${y+r}L${x-r-1} ${y+r}Z" fill="var(--bg)" stroke="var(--grey)" stroke-width="2"/>`;
+}
+function ch2(){
+  $("genv").innerHTML=GE.map(e=>`<button class="opt" aria-pressed="${S.env===e.k}" data-e="${e.k}">${e.k}<small>${e.gl}. ${e.d}</small></button>`).join("");
+  $("genv").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.env=b.dataset.e;story()});
+  $("what").innerHTML=Object.entries(MATS).map(([k,v])=>{const n=new Set(T.filter(t=>t.m===k).map(t=>t.id.replace(/[bc]$/,""))).size;return `<button class="opt" aria-pressed="${S.m===k}" data-m="${k}">${v.c}<small>${n} flight test${n===1?"":"s"} · ${v.d}</small></button>`}).join("");
+  $("what").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.m=b.dataset.m;story()});
+  $("air").innerHTML=ATM.map(a=>`<button class="opt" aria-pressed="${A().k===a.k}" data-a="${a.k}">${a.n}<small>${a.d}</small></button>`).join("");
+  $("air").querySelectorAll("button").forEach(b=>b.onclick=()=>{const a=ATM.find(x=>x.k===b.dataset.a);S.o=a.o;S.p=a.p;story()});
+  $("fl").value=S.f;$("o2").value=S.o;$("pr").value=S.p;
+  $("flv").textContent=`${S.f} cm/s · ${S.f<1?"still air":S.f<7?"gentle breeze":S.f<18?"steady breeze":"fan on high"}`;
+  $("o2v").textContent=S.o.toFixed(1)+"%";$("prv").textContent=S.p.toFixed(2)+" psia";
+  const micro=S.env==="ISS",v=verdict();
+  $("fannote").textContent=micro?"In orbit, hot air doesn't rise, so the fans are a flame's only fresh air.":"With gravity, hot air rises again, so the fans are no longer a flame's only fresh air.";
+  if(micro){
+    $("hab2").innerHTML=habSVG("ISS",v.c==="burn"||v.c==="mix","illustrative",true);
+    let h2=`<span class="badge" style="border-style:solid">Tested · NASA flight data</span><div class="vhead"><span class="vicon ${v.c}" aria-hidden="true">${v.i}</span><div class="vtitle">${v.t}</div></div><p style="margin:0 0 6px">${v.s}</p>`;
+    if(v.m.length)h2+=`<p class="note">${v.m.slice(0,4).map(t=>`<a href="${SRC[t.src][1]}" target="_blank" rel="noopener">${t.exp} ${t.id}</a>`).join(", ")}${v.m.length>4?` and ${v.m.length-4} more`:""}</p>`;
+    else{const n=nearest();if(n)h2+=`<p class="note">Closest test: ${n.exp} ${n.id}, ${OUT[n.out].toLowerCase()} at ${n.o}% O₂, ${n.f} cm/s, ${n.p==null?"~14.7":n.p} psia.</p>`}
+    h2+=`<p class="note">${S.f<7?"Slow air is the key: with nothing rising, a flame only gets fresh oxygen from the fans.":"With the fans on, fresh oxygen keeps arriving."}</p>`;
+    $("verdict").innerHTML=h2;
+  }else{
+    const P=predict(S.env),bar=n=>`<div class="mbar"><i style="width:${n*25}%"></i></div>`;
+    $("hab2").innerHTML=habSVG(S.env,P.keep>0,"predicted",true);
+    $("verdict").innerHTML=`<span class="badge">Prediction · no fire test at ${GE.find(e=>e.k===S.env).gl} yet</span><div class="vhead"><span class="vicon ${P.keep>0?"pred":"unk"}">${P.keep>0?FLS:"?"}</span><div class="vtitle">${P.t}</div></div><p class="note" style="margin:0 0 4px">Compared with the same fire in orbit, ${v.c==="unk"?"where no flight test sits this close.":`where flight tests say: <b>${v.t.toLowerCase()}</b>.`}</p><div class="meters"><div class="mrow"><span>Chance to start</span>${bar(P.start)}<b>${LV0[P.start]}</b></div><div class="mrow"><span>Chance to keep burning</span>${bar(P.keep)}<b>${LV0[P.keep]}</b></div></div>${P.why.map(w=>`<p style="margin:0 0 8px;font-size:15px">${w}</p>`).join("")}`;
+  }
+  $("hab2").querySelectorAll(".comp").forEach(g=>{const go=()=>{S.m=g.dataset.m;story()};g.onclick=go;g.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
+}
+$("o2").oninput=e=>{S.o=+e.target.value;story()};
+$("pr").oninput=e=>{S.p=+e.target.value;story()};
+$("fl").oninput=e=>{S.f=+e.target.value;story()};
+// ================= ship planner =================
+const TYPES={STO:["Stowage",140,3,"#8a6d3b"],ENG:["Engine room",80,12,"#6b4fa0"],LAB:["Lab",70,14,"#1f8a8a"],OPS:["Operations",60,10,"#2f5fb3"],GAL:["Galley",60,12,"#c2571a"],LS:["Life support",60,12,"#2e8b57"],CQ:["Crew quarters",50,8,"#b0407a"],PWR:["Power",50,8,"#b38f00"],HYG:["Hygiene",45,16,"#3a8fd0"],AL:["Airlock",40,10,"#444f5c"],HALL:["Hall (passage)",20,10,"#9aa5b1"]};
+const PASS=new Set(["HALL"]);const FP={Low:1,Moderate:2,High:3};
+const EV={PMMA:"Flight tests: kept burning at 8 psia / 29–30% O₂ (Saffire VI)",SIBAL:"Flight tests: kept burning in air with fans on; went out below ~3–5 cm/s (BASS-II)",COTTON:"Flight test: kept burning at 10.25 psia / 26.2% O₂ (Saffire V-2)"};
+const LIB={
+ pmma:{n:"Acrylic (PMMA) panels",cat:"material",fl:"High",dims:[10,8,4],ev:EV.PMMA},
+ sibal:{n:"Cotton-fiberglass cloth (SIBAL)",cat:"material",fl:"Moderate",dims:[40,30,1],ev:EV.SIBAL},
+ cotton:{n:"Cotton clothing and towels",cat:"material",fl:"High",soft:1,dims:[30,25,10],swap:"cottonN",ev:EV.COTTON},
+ cottonN:{n:"Clothing and towels, Nomex-bagged",cat:"material",fl:"Low",bagged:1,dims:[30,25,10]},
+ paper:{n:"Paper manuals",cat:"material",fl:"Moderate",dims:[28,22,3]},
+ puf:{n:"Polyurethane foam",cat:"material",fl:"High",soft:1,dims:[40,30,5],swap:"mel"},mel:{n:"Melamine foam",cat:"material",fl:"Low",dims:[40,30,5]},
+ wipes:{n:"Alcohol wipes",cat:"material",fl:"High",dims:[15,10,5],swap:"wipesS"},wipesS:{n:"Alcohol wipes, sealed canister",cat:"material",fl:"Low",dims:[15,10,8]},
+ pe:{n:"Polyethylene bags",cat:"material",fl:"High",soft:1,dims:[30,20,1],swap:"fr"},fr:{n:"Bags, fire-retardant film",cat:"material",fl:"Low",dims:[30,20,1]},
+ food:{n:"Packaged food",cat:"material",fl:"Moderate",dims:[20,15,10]},
+ pvc:{n:"PVC-insulated wire harness",cat:"material",fl:"Moderate",dims:[100,3,3],swap:"ptfe"},ptfe:{n:"PTFE-insulated wire harness",cat:"material",fl:"Low",dims:[100,3,3]},
+ oil:{n:"Lubricant oil",cat:"material",fl:"High",dims:[10,10,15]},ctb:{n:"Cargo transfer bags",cat:"material",fl:"Moderate",soft:1,dims:[50,40,25]},
+ li:{n:"Li-ion battery pack",cat:"machinery",ig:1,liion:1,dims:[20,15,8],swap:"liB"},liB:{n:"Li-ion battery pack, bagged",cat:"machinery",ig:1,liion:1,bagged:1,dims:[22,17,10]},
+ laptop:{n:"Laptop",cat:"machinery",ig:1,dims:[35,25,2]},warmer:{n:"Food warmer",cat:"machinery",ig:1,dims:[40,30,20]},printer:{n:"3D printer",cat:"machinery",ig:1,dims:[45,45,50]},
+ exer:{n:"Motorised exercise device",cat:"machinery",ig:1,dims:[120,60,50]},fan:{n:"Air circulation fan",cat:"machinery",ig:1,dims:[25,25,15]},pump:{n:"Propellant pump controller",cat:"machinery",ig:1,dims:[30,20,15]},
+ console:{n:"Flight control consoles",cat:"machinery",ig:1,dims:[60,40,30]},o2:{n:"Oxygen supply",cat:"machinery",ox:1,dims:[30,30,60]},
+ ext:{n:"Portable extinguisher",cat:"safety",safe:"ext",dims:[15,15,50]},det:{n:"Smoke detector",cat:"safety",safe:"det",dims:[10,10,5]}};
+let uid=1;
+const it=(id,q,d)=>{const dd=d||LIB[id].dims;return{id,q,l:dd[0],w:dd[1],h:dd[2],u:uid++}};
+const Mo=(name,type,x,y,items)=>({id:"m"+(uid++),name,type,x,y,af:TYPES[type][2],cap:TYPES[type][1],items});
+const STARTERS={iss:{n:"ISS-style station",f:()=>[Mo("PMM Stowage & Logistics","STO",1,0,[it("ctb",1),it("sibal",1),it("paper",2),it("pe",2),it("det",1)]),Mo("Quest Airlock","AL",0,1,[it("li",1),it("o2",1),it("det",1)]),Mo("Node 1 Galley","GAL",1,1,[it("warmer",1),it("food",2),it("wipes",1),it("det",1)]),Mo("Destiny Lab","LAB",2,1,[it("laptop",2),it("pmma",3),it("pvc",1),it("det",1),it("ext",1)]),Mo("Node 2 Crew Quarters","CQ",3,1,[it("cotton",1),it("laptop",1)]),Mo("Node 3 Hygiene & Exercise","HYG",1,2,[it("exer",1),it("cotton",1),it("ext",1)]),Mo("Columbus Lab","LAB",3,2,[it("console",1),it("ptfe",2),it("det",1),it("ext",1)])]},
+ transit:{n:"Transit spacecraft",f:()=>[Mo("Engine room","ENG",0,1,[it("pump",1),it("oil",1),it("ext",1)]),Mo("Spine A","HALL",1,1,[]),Mo("Spine B","HALL",2,1,[it("ctb",1)]),Mo("Spine C","HALL",3,1,[]),Mo("Operations","OPS",4,1,[it("console",1),it("laptop",1),it("det",1)]),Mo("Galley","GAL",1,0,[it("warmer",1),it("food",2)]),Mo("Crew quarters","CQ",2,0,[it("cotton",1)]),Mo("Lab","LAB",3,0,[it("printer",1),it("pmma",1,[20,10,1])]),Mo("Power bay","PWR",1,2,[it("li",2),it("pvc",1)]),Mo("Stowage","STO",2,2,[it("ctb",1),it("sibal",1),it("paper",2),it("pe",2)]),Mo("Life support","LS",3,2,[it("o2",1),it("fan",2),it("det",1)])]}};
+let ship=STARTERS.iss.f(),shipKey="iss",base=null;
+const mission=()=>GE.find(e=>e.k===S.env).mis;
+const phases=()=>mission()==="cruise"?["cruise"]:["cruise",mission()];
+const PHN={cruise:"in-space cruise",moon:"lunar surface",mars:"Martian surface"};
+function stats(m){let fuel=0,ign=0,ox=0,mh=0,soft=0,liU=0,ext=0,det=0,mats=0;
+  m.items.forEach(i=>{const d=LIB[i.id];if(d.cat==="material"){mats+=i.q;const sf=Math.min(4,1+Math.floor(i.l*i.w*i.h*i.q/1000/5));fuel+=FP[d.fl]*sf;if(d.fl!=="Low")mh+=i.q;if(d.soft&&!d.bagged)soft+=i.q}
+    if(d.ig)ign+=i.q;if(d.ox)ox+=i.q;if(d.liion&&!d.bagged)liU+=i.q;if(d.safe==="ext")ext+=i.q;if(d.safe==="det")det+=i.q});
+  return{fuel,ign,ox,mh,soft,liU,ext,det,mats,stocked:m.items.length>0,pass:PASS.has(m.type)}}
+function rawScore(m,ph){const s=stats(m);let r=s.fuel+(s.fuel>0?2*s.ign:0)+(s.ox&&s.mh?4:0)+(s.pass&&s.mats?2:0)-(s.ext?1:0)-(s.det?1:0);
+  if(ph==="cruise")r+=Math.min(3,s.soft)+(s.stocked&&!s.det?1:0);
+  else r+=(s.liU?2:0)+(s.ign&&s.mh?1:0)+(s.mh?1:0);
+  const rich=S.o>=30?2:S.o>=25?1:0;r+=(s.mh?rich:0)+(s.ox&&S.o>=30?1:0);
+  return Math.max(0,r)}
+const roomScore=(m,ph)=>Math.round(100*(1-Math.exp(-rawScore(m,ph)/12)));
+const worst=m=>Math.max(...phases().map(p=>roomScore(m,p)));
+const stocked=()=>ship.filter(m=>m.items.length);
+function shipScore(ph){const r=stocked().map(m=>roomScore(m,ph)).sort((a,b)=>b-a);if(!r.length)return 0;const mean=x=>x.reduce((a,b)=>a+b,0)/x.length;return Math.round(.5*mean(r.slice(0,3))+.5*mean(r))}
+function overall(){const c=shipScore("cruise");if(mission()==="cruise")return c;const s=shipScore(mission());return Math.round(.6*Math.max(c,s)+.4*(c*180+s*30)/210)}
+const LVL=[[20,"Low","--r1"],[40,"Guarded","--r2"],[60,"Elevated","--r3"],[80,"High","--r4"],[100,"Severe","--r5"]];
+const lvl=s=>LVL.find(l=>s<=l[0])||LVL[4],col=s=>`var(${lvl(s)[2]})`;
+function sumRaw(ms){return ms.reduce((a,m)=>a+phases().reduce((b,p)=>b+rawScore(m,p),0),0)}
+function evalMove(src,i,dst){const b=sumRaw([src,dst]),k=src.items.indexOf(i);src.items.splice(k,1);dst.items.push(i);const a=sumRaw([src,dst]);dst.items.pop();src.items.splice(k,0,i);return a-b}
+function bestMove(src,any){let best=null;src.items.forEach(i=>{const d=LIB[i.id];if(d.cat!=="material"||(!any&&d.fl==="Low"))return;ship.forEach(dst=>{if(dst===src||PASS.has(dst.type))return;const dl=evalMove(src,i,dst);if((any||dl<0)&&(!best||dl<best.dl))best={src,i,dst,dl}})});return best}
+function applyMove(mv){const k=mv.src.items.indexOf(mv.i);if(k>=0){mv.src.items.splice(k,1);mv.dst.items.push(mv.i)}}
+function fixes(m){const s=stats(m),out=[];
+  if(s.fuel>0&&!s.det)out.push({t:"Add a smoke detector",sev:3,f:()=>m.items.push(it("det",1))});
+  if(s.ign&&s.fuel>0&&!s.ext)out.push({t:"Add a portable extinguisher",sev:3,f:()=>m.items.push(it("ext",1))});
+  m.items.forEach(i=>{const d=LIB[i.id];if(d.swap&&(d.fl!=="Low"||d.liion))out.push({t:`Swap “${d.n}” for “${LIB[d.swap].n}”`,sev:d.liion?3:FP[d.fl]||2,f:()=>{i.id=d.swap}})});
+  if(s.ox&&s.mh)out.push({t:"Move flammables away from the oxygen outlet",sev:3,f:()=>{const mv=bestMove(m);if(mv)applyMove(mv)}});
+  if(s.pass&&s.mats)out.push({t:"Clear cargo out of this passage",sev:2,f:()=>{let mv;while((mv=bestMove(m,true)))applyMove(mv)}});
+  if(s.ign&&s.mh&&!(s.ox))out.push({t:"Move flammables away from hot electronics",sev:2,f:()=>{const mv=bestMove(m);if(mv)applyMove(mv)}});
+  return out.sort((a,b)=>b.sev-a.sev)}
+function listFixes(){const a=[];ship.forEach(m=>fixes(m).forEach((f,k)=>a.push({id:m.id,name:m.name,t:f.t,k,s:worst(m),sev:f.sev})));return a}
+function allFixes(){const snap=JSON.stringify(ship),o0=overall(),L0=listFixes();
+  L0.forEach((x,j)=>{ship=JSON.parse(snap);const L=listFixes(),m=ship.find(q=>q.id===L[j].id);fixes(m)[L[j].k].f();x.gain=o0-overall()});
+  ship=JSON.parse(snap);return L0.sort((a,b)=>(b.gain-a.gain)||(b.sev*100+b.s-(a.sev*100+a.s)))}
+function doFix(x){const m=ship.find(q=>q.id===x.id);const f=m&&fixes(m)[x.k];if(f)f.f()}
+// ================= chapter 4 =================
+const CW=184,CH=118,GX=30,GY=26,PAD=26;let flashIds=[];
+function ch4(){
+  $("carry4").textContent=`${S.env==="ISS"?"in-space cruise":"cruise + "+PHN[mission()]} · ${A().n.toLowerCase()} (${A().d})`;
+  const o=overall(),dd=base.v-o;$("shipnow").innerHTML=`<span>Ship fire-risk score</span><b style="color:${col(o)}">${o}</b><span class="lvl" style="background:${col(o)};font-size:14px">${lvl(o)[1]}</span><span class="note" style="margin:0">${dd>0?`<span class="delta">−${dd}</span> from the starting ${base.v}`:dd<0?`<span class="delta up">+${-dd}</span> from the starting ${base.v}`:"Open a red-badged room and apply a fix"}</span>`;
+  $("starters").innerHTML=Object.entries(STARTERS).map(([k,v])=>`<button class="btn sm" aria-pressed="${shipKey===k}" data-st="${k}">${v.n}</button>`).join("");
+  $("starters").querySelectorAll("button").forEach(b=>b.onclick=()=>{shipKey=b.dataset.st;ship=STARTERS[shipKey].f();base=null;baseSnap=null;story()});
+  $("lvleg").innerHTML=LVL.map(l=>`<span><i class="sw" style="background:var(${l[2]})"></i>${l[1]}</span>`).join("");
+  const xs=ship.map(m=>m.x),ys=ship.map(m=>m.y),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const px=x=>PAD+44+(x-x0)*(CW+GX),py=y=>PAD+18+(y-y0)*(CH+GY),W=px(x1)+CW+PAD+30,H=py(y1)+CH+PAD;
+  const hx=px(x0)-18,hy=py(y0)-16,hw=px(x1)+CW+18-hx,hh=py(y1)+CH+16-hy,r=Math.min(56,hh/2);
+  let h=`<svg width="${W}" height="${H}" style="position:absolute;inset:0" aria-hidden="true"><path d="M${hx} ${hy+14}Q${hx} ${hy} ${hx+14} ${hy}H${hx+hw-r}A${r} ${r} 0 0 1 ${hx+hw} ${hy+r}V${hy+hh-r}A${r} ${r} 0 0 1 ${hx+hw-r} ${hy+hh}H${hx+14}Q${hx} ${hy+hh} ${hx} ${hy+hh-14}Z" fill="var(--hull)" stroke="var(--line)" stroke-width="2"/>`;
+  for(let i=0;i<3;i++){const cy=hy+hh*(i+1)/4;h+=`<path d="M${hx} ${cy-12}L${hx-28} ${cy-22}V${cy+22}L${hx} ${cy+12}Z" fill="var(--line)"/>`}
+  h+=`</svg>`;
+  ship.forEach(m=>ship.forEach(o=>{if((o.x===m.x+1&&o.y===m.y)||(o.y===m.y+1&&o.x===m.x)){const cx=o.x!==m.x?px(o.x)-GX/2:px(m.x)+CW/2,cy=o.y!==m.y?py(o.y)-GY/2:py(m.y)+CH/2;h+=`<span class="port" style="left:${cx-7}px;top:${cy-7}px"></span>`}}));
+  ship.forEach(m=>{const T0=TYPES[m.type],s=stats(m),sc=worst(m),nD=s.fuel>0&&!s.det,nE=s.ign&&s.fuel>0&&!s.ext;
+    const b=(lab,has,need)=>`<span class="bdg ${has?"yes":need?"need":"no"}">${lab}</span>`;
+    h+=`<button class="mod ${s.stocked?"risk":""}" style="left:${px(m.x)}px;top:${py(m.y)}px;--tc:${T0[3]};--rc:${col(sc)}" data-m="${m.id}" aria-label="${esc(m.name)}, ${s.stocked?lvl(sc)[1]+" risk":"empty"}"><span class="nm"><span class="tb">${m.type}</span>${esc(m.name)}</span><span class="row" style="gap:3px">${b("Detector",s.det,nD)}${b("Extinguisher",s.ext,nE)}</span><span class="row" style="gap:3px">${s.ign?`<span class="tag">Hot electronics</span>`:""}${s.ox?`<span class="tag">O₂ outlet</span>`:""}</span><span class="meta"><span>${(()=>{const b0=base.rooms[m.id];if(b0==null||b0===sc)return m.items.length+" item types";return b0>sc?`<span class="delta">−${b0-sc}</span> from ${b0}`:`<span class="delta up">+${sc-b0}</span> from ${b0}`})()}</span>${s.stocked?`<span class="lvl" style="background:${col(sc)}">${sc} ${lvl(sc)[1]}</span>`:"<span>Empty</span>"}</span></button>`});
+  const map=$("map");map.style.width=W+"px";map.style.height=H+"px";map.innerHTML=h;
+  const bw=$("mapbox").clientWidth-2,sc=Math.max(.72,Math.min(1,bw/W));map.style.transform=`scale(${sc})`;map.style.transformOrigin="0 0";$("mapsz").style.width=W*sc+"px";$("mapsz").style.height=H*sc+"px";
+  map.querySelectorAll(".mod").forEach(b=>{b.onclick=()=>openRoom(b.dataset.m);if(flashIds.includes(b.dataset.m))b.classList.add("flash")});flashIds=[];
+}
+const layer=$("layer");
+function closeLayer(){layer.innerHTML="";document.body.style.overflow="";story()}
+function gainTxt(m,k){const snap=JSON.stringify(ship),o0=overall(),r0=worst(m);const mm=ship.find(q=>q.id===m.id);const keep=ship;ship=JSON.parse(snap);const c=ship.find(q=>q.id===m.id);fixes(c)[k].f();const r1=worst(c),o1=overall();ship=keep;return `room −${r0-r1} · ship −${o0-o1}`}
+function openRoom(id){
+  const m=ship.find(x=>x.id===id);if(!m)return;let add="cotton";
+  const draw=()=>{const s=stats(m),sc=worst(m),fx=fixes(m);
+    layer.innerHTML=`<div class="ov" id="ovl"><div class="dlg" role="dialog" aria-modal="true" aria-label="${esc(m.name)}"><div class="dh"><div class="row" style="justify-content:space-between"><h3 style="font-size:22px"><span class="tb" style="background:${TYPES[m.type][3]}">${m.type}</span>${esc(m.name)}</h3><button class="btn sm" id="x1">Close</button></div><div class="row" style="justify-content:space-between;font-size:14px;margin-top:8px"><span>Room risk${phases().length>1?" (worst phase)":""}</span><b>${s.stocked?sc+" · "+lvl(sc)[1]:"Empty"}</b></div><div class="bar"><i style="width:${sc}%;background:${col(sc)}"></i></div></div>
+    <div class="db"><div><h3 style="margin-bottom:6px">What's stored here</h3>${m.items.length?`<ul class="list">${m.items.map(i=>{const d=LIB[i.id];return `<li><span><b>${esc(d.n)}</b> ${d.cat==="material"?`<span class="flv ${d.fl}">${d.fl}</span>`:d.ig?`<span class="tag">ignition</span>`:d.ox?`<span class="tag">O₂</span>`:`<span class="tag">safety</span>`}<small>×${i.q}${d.ev?` · <span class="ev">${esc(d.ev)}</span>`:""}</small></span>${d.swap?`<button class="btn sm" data-sw="${i.u}">Swap</button>`:""}<button class="btn sm" data-rm="${i.u}">Remove</button></li>`}).join("")}</ul>`:`<p class="note">Nothing stored yet.</p>`}</div>
+    <form class="addf" id="addf"><select id="aI" aria-label="Item to add">${["material","machinery","safety"].map(c=>`<optgroup label="${c[0].toUpperCase()+c.slice(1)}">${Object.keys(LIB).filter(k=>LIB[k].cat===c).map(k=>`<option value="${k}" ${k===add?"selected":""}>${esc(LIB[k].n)}</option>`).join("")}</optgroup>`).join("")}</select><input id="aQ" type="number" min="1" value="1" aria-label="Quantity"><button class="btn pri">Add</button></form>
+    <div><h3 style="margin-bottom:6px">Fixes for this room</h3>${fx.length?`<ul class="list">${fx.map((f,k)=>`<li><span>${f.t}<small>${gainTxt(m,k)}</small></span><button class="btn sm pri" data-fx="${k}">Fix</button></li>`).join("")}</ul>`:`<p class="note">No fixes needed.</p>`}</div></div>
+    <div class="df"><button class="btn pri" id="x2">Done</button></div></div></div>`;
+    document.body.style.overflow="hidden";
+    $("x1").onclick=closeLayer;$("x2").onclick=closeLayer;$("ovl").onclick=e=>{if(e.target.id==="ovl")closeLayer()};
+    $("aI").onchange=e=>{add=e.target.value};
+    $("addf").onsubmit=e=>{e.preventDefault();const q=Math.max(1,Math.round(+$("aQ").value||1));m.items.push(it($("aI").value,q));draw()};
+    layer.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{m.items=m.items.filter(i=>i.u!==+b.dataset.rm);draw()});
+    layer.querySelectorAll("[data-sw]").forEach(b=>b.onclick=()=>{const i=m.items.find(x=>x.u===+b.dataset.sw);i.id=LIB[i.id].swap;draw()});
+    layer.querySelectorAll("[data-fx]").forEach(b=>b.onclick=()=>{const b0=worst(m),o0=overall();fx[+b.dataset.fx].f();flashIds.push(m.id);toast(`Room ${b0} → ${worst(m)} · ship ${o0} → ${overall()}`);draw()});
+  };
+  draw();
+}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&layer.innerHTML)closeLayer()});
+// ================= chapter 5 =================
+let baseSnap=null;
+function ensureBase(){if(base==null||!baseSnap){baseSnap=JSON.stringify(ship)}const keep=ship;ship=JSON.parse(baseSnap);const r={};ship.forEach(m=>r[m.id]=worst(m));base={v:overall(),rooms:r};ship=keep}
+function ch5(){
+  const o=overall();
+  $("before").innerHTML=`<span class="note" style="display:block;margin:0 0 4px">Starting ship</span><b style="color:${col(base.v)}">${base.v}</b><span>${lvl(base.v)[1]}</span>`;
+  $("after").innerHTML=`<span class="note" style="display:block;margin:0 0 4px">Your ship now</span><b style="color:${col(o)}">${o}</b><span>${lvl(o)[1]}</span>`;
+  const d=base.v-o;
+  $("scorenote").textContent=`${mission()==="cruise"?"In-space cruise":"Cruise (180 days) + "+PHN[mission()]+" (30 days)"}, ${A().n.toLowerCase()}. ${d>0?`You've cut the score by ${d} points.`:d<0?`The score has gone up ${-d} points since the start.`:"Apply a fix to see the score drop."}`;
+  const a=allFixes().slice(0,6);
+  $("fixes").innerHTML=a.map((x,j)=>`<li><span>${x.t}<small>${esc(x.name)} · ${x.gain>0?`ship score −${x.gain}`:"helps this room, not the ship total"}</small></span><button class="btn sm pri" data-j="${j}">Fix</button></li>`).join("")||`<li><span>No fixes left. The ship is as safe as these rules can make it.</span></li>`;
+  $("fixes").querySelectorAll("[data-j]").forEach(b=>b.onclick=()=>{const x=a[+b.dataset.j],o0=overall();doFix(x);flashIds.push(x.id);story();toast(`${x.name}: fixed · ship ${o0} → ${overall()}`)});
+}
+$("fixall").onclick=()=>{const o0=overall();for(let n=0;n<3;n++){const x=allFixes()[0];if(!x)break;doFix(x);flashIds.push(x.id)}story();toast(`Top 3 fixes applied · ship ${o0} → ${overall()}`)};
+$("undo").onclick=()=>{ship=JSON.parse(baseSnap);base=null;baseSnap=JSON.stringify(ship);story();toast("Back to the starting ship")};
+// ================= chapter 6 =================
+let claudeS=null;
+function localBrief(){const o=overall(),v=verdict(),top=stocked().slice().sort((a,b)=>worst(b)-worst(a))[0];
+  const g=S.env==="ISS"?"in orbit":`on ${S.env==="Moon"?"the Moon":"Mars"}`;
+  return[`<p><b>Mission:</b> ${S.env==="ISS"?"in-space cruise":"cruise, then a stay "+g}, in ${A().n.toLowerCase()} (${A().d}).</p>`,`<p><b>The evidence:</b> for ${MATS[S.m].s.toLowerCase()} with fans at ${S.f} cm/s, NASA flight tests say: ${v.t.toLowerCase()}. ${S.env==="ISS"?"":`At ${S.env==="Moon"?"lunar":"Martian"} gravity that is only a prediction, and it points to higher risk.`}</p>`,`<p><b>The ship:</b> fire-risk score went from ${base.v} to ${o} (${lvl(o)[1].toLowerCase()}).${top?` The riskiest space is ${esc(top.name)} at ${worst(top)}.`:""}</p>`,`<p><b>Biggest open question:</b> ${S.env!=="ISS"?"no fire has been tested at partial gravity; FM2 aims to change that.":A().o>31?"nothing has been flown above 31% oxygen.":"the ship weights are placeholders until real test data replaces them."}</p>`].join("")}
+$("brief").onclick=async()=>{
+  const out=$("aiout");
+  if(!claudeS){out.innerHTML=`<div class="note" style="margin:0 0 6px">Built-in summary</div>${localBrief()}`;return}
+  out.innerHTML=`<p class="note">Writing your brief…</p>`;
+  try{const data={material:MATS[S.m].s,atmosphere:A(),fans_cm_s:S.f,destination:S.env,tested_verdict:verdict().t,matching_tests:matches().map(t=>({id:t.id,exp:t.exp,outcome:OUT[t.out]})),gravity_prediction:S.env==="ISS"?null:predict(S.env),ship_score_start:base.v,ship_score_now:overall(),rooms:stocked().map(m=>({name:m.name,score:worst(m),items:m.items.map(i=>LIB[i.id].n)})),remaining_fixes:allFixes().slice(0,3).map(x=>x.t+" ("+x.name+")"),gaps:["no partial-gravity fire tests; NASA FM2 planned","no flight tests above 31% O2","ship weights are placeholders"]};
+    const r=await claudeS(`Write a short mission fire-safety brief (4 short paragraphs, under 150 words, plain language) from this data only. Label anything about Moon or Mars gravity as a prediction. Don't invent numbers. Plain text, paragraphs separated by blank lines.\n\n${JSON.stringify(data)}`,{modelTier:"default"});
+    out.innerHTML=`<div class="note" style="margin:0 0 6px">Written by Claude</div>`+esc(r.text||"").split(/\n\s*\n/).map(p=>`<p>${p}</p>`).join("");
+  }catch(e){if(e&&e.code==="not_granted")claudeS=null;out.innerHTML=`<div class="note" style="margin:0 0 6px">Built-in summary</div>${localBrief()}`}
+};
+// ================= story rail =================
+const CHAP=[["c1","The problem"],["c2","One flame"],["c3","The ship"],["c4","Fix it"],["c5","What's next"]];
+$("rail").innerHTML=CHAP.map(([id,n],i)=>`<a href="#${id}" data-c="${id}"><i>${i+1}</i>${n}</a>`).join("");
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)$("rail").querySelectorAll("a").forEach(a=>a.classList.toggle("on",a.dataset.c===e.target.id))})},{rootMargin:"-40% 0px -55% 0px"});
+CHAP.forEach(([id])=>io.observe($(id)));
+$("ntests").textContent=new Set(T.map(t=>t.id.replace(/[bc]$/,""))).size;
+function story(){ch2();ensureBase();ch4();ch5()}
+let rz;new ResizeObserver(()=>{clearTimeout(rz);rz=setTimeout(ch4,120)}).observe($("mapbox"));
+story();
+if(window.claude&&window.claude.use){window.claude.use("sample").then(x=>{if(x){claudeS=x;$("briefnote").textContent="Claude sums up your choices: the material, air, gravity and the ship's score before and after fixes."}}).catch(()=>{})}
+}
+</script>
+</body>
+</html>
